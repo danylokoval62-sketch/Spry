@@ -10,3 +10,4 @@ frontend/vite.config.d.ts
 frontend/vite.config.js
 trust.json
 perm.json
+infra/aws-ids.env

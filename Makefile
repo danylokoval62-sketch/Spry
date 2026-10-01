@@ -1,10 +1,10 @@
-AWS_REGION      ?= eu-north-1
-ACCOUNT_ID      ?= 416121583967
+AWS_REGION      ?= eu-central-1
+ACCOUNT_ID      ?= 649089875356
 REGISTRY        := $(ACCOUNT_ID).dkr.ecr.$(AWS_REGION).amazonaws.com
 TAG             ?= $(shell git rev-parse HEAD)
 IMAGE           := $(REGISTRY)/spry-backend:$(TAG)
-FRONTEND_BUCKET ?= spry-koval-frontend
-CF_DIST_ID      ?= E1ZL2OOHJRFU2S
+FRONTEND_BUCKET ?= spry-koval-frontend-649089875356
+CF_DIST_ID      ?= E21I2RKF628XEZ
 API_URL         ?= https://api.spry-koval.me
 
 lint:
