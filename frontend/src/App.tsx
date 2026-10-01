@@ -24,9 +24,7 @@ export default function App() {
     try {
       const created = await createMeeting(meeting);
       setMeetings((current) =>
-        [...current, created].sort((a, b) =>
-          a.starts_at.localeCompare(b.starts_at),
-        ),
+        [...current, created].sort((a, b) => a.starts_at.localeCompare(b.starts_at)),
       );
     } catch {
       setError("The meeting could not be added. Please try again.");
@@ -57,8 +55,7 @@ export default function App() {
               Make room for good work.
             </h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-moss">
-              Keep the team aligned with a calm, clear view of what is happening
-              next.
+              Keep the team aligned with a calm, clear view of what is happening next.
             </p>
           </div>
           <div className="rounded-3xl bg-[#e6eadf] p-6 shadow-[8px_8px_0_#d8d0c2] sm:p-8">
@@ -66,10 +63,7 @@ export default function App() {
               <CalendarPlus className="text-coral" size={22} />
               <h2 className="font-display text-2xl">Add a meeting</h2>
             </div>
-            <MeetingForm
-              onSubmit={handleCreateMeeting}
-              isSubmitting={isSubmitting}
-            />
+            <MeetingForm onSubmit={handleCreateMeeting} isSubmitting={isSubmitting} />
           </div>
         </section>
         <section className="border-t border-line pt-8">
@@ -78,18 +72,14 @@ export default function App() {
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-coral">
                 Coming up
               </p>
-              <h2 className="mt-1 font-display text-3xl">
-                The next conversations
-              </h2>
+              <h2 className="mt-1 font-display text-3xl">The next conversations</h2>
             </div>
             <span className="text-sm text-moss">
               {meetings.length} {meetings.length === 1 ? "meeting" : "meetings"}
             </span>
           </div>
           {error && (
-            <p className="mb-4 rounded-xl bg-[#f5d8d0] px-4 py-3 text-sm text-[#8b3d2b]">
-              {error}
-            </p>
+            <p className="mb-4 rounded-xl bg-[#f5d8d0] px-4 py-3 text-sm text-[#8b3d2b]">{error}</p>
           )}
           {isLoading ? (
             <p className="text-moss">Loading meetings...</p>

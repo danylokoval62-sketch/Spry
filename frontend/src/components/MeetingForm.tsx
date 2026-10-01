@@ -48,9 +48,7 @@ export function MeetingForm({ onSubmit, isSubmitting }: MeetingFormProps) {
             required
             type="datetime-local"
             value={form.starts_at}
-            onChange={(event) =>
-              setForm({ ...form, starts_at: event.target.value })
-            }
+            onChange={(event) => setForm({ ...form, starts_at: event.target.value })}
             className="mt-2 w-full rounded-xl border border-line bg-paper px-4 py-3 font-normal outline-none focus:border-moss"
           />
         </label>
@@ -60,9 +58,7 @@ export function MeetingForm({ onSubmit, isSubmitting }: MeetingFormProps) {
             required
             type="datetime-local"
             value={form.ends_at}
-            onChange={(event) =>
-              setForm({ ...form, ends_at: event.target.value })
-            }
+            onChange={(event) => setForm({ ...form, ends_at: event.target.value })}
             className="mt-2 w-full rounded-xl border border-line bg-paper px-4 py-3 font-normal outline-none focus:border-moss"
           />
         </label>
@@ -74,9 +70,7 @@ export function MeetingForm({ onSubmit, isSubmitting }: MeetingFormProps) {
           min={1}
           type="number"
           value={form.attendee_count}
-          onChange={(event) =>
-            setForm({ ...form, attendee_count: event.target.value })
-          }
+          onChange={(event) => setForm({ ...form, attendee_count: event.target.value })}
           className="mt-2 w-full rounded-xl border border-line bg-paper px-4 py-3 font-normal outline-none focus:border-moss"
         />
       </label>
