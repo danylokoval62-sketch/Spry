@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.ruff_cache/
+*.tsbuildinfo
+.env
+*.pkg
+__pycache__/
+*.tsbuildinfo
+frontend/vite.config.d.ts
+frontend/vite.config.js

@@ -1,4 +1,4 @@
-AWS_REGION ?= eu-central-1
+AWS_REGION ?= eu-north-1
 IMAGE_TAG ?= $(shell git rev-parse --short HEAD)
 ECR_REPOSITORY ?= spry-backend
 ECS_CLUSTER ?= spry-cluster
