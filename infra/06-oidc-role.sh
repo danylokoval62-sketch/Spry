@@ -16,7 +16,7 @@ cat > /tmp/trust.json <<EOF
     "Condition": {
       "StringEquals": {
         "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
-        "token.actions.githubusercontent.com:sub": "repo:danylokoval62-sketch/Spry:ref:refs/heads/main"
+        "token.actions.githubusercontent.com:sub": "repo:danylokoval62-sketch@232208209/Spry@1400436674:ref:refs/heads/main"
       }
     }
   }]
