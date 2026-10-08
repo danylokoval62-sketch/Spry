@@ -6,6 +6,10 @@ IMAGE           := $(REGISTRY)/spry-backend:$(TAG)
 FRONTEND_BUCKET ?= spry-koval-frontend-649089875356
 CF_DIST_ID      ?= E21I2RKF628XEZ
 API_URL         ?= https://api.spry-koval.me
+AUTH_STACK      ?= spry-auth
+
+-include .env
+auth_out = $(shell aws cloudformation describe-stacks --region us-east-1 --stack-name $(AUTH_STACK) --query "Stacks[0].Outputs[?OutputKey=='$(1)'].OutputValue" --output text)
 
 lint:
 	cd backend && ruff check .
@@ -18,6 +22,15 @@ deploy-backend:
 	./scripts/deploy-backend.sh $(IMAGE)
 
 deploy-frontend:
-	cd frontend && npm ci && VITE_API_URL=$(API_URL) npm run build
+	cd frontend && npm ci && VITE_API_URL=$(API_URL) \
+	  VITE_COGNITO_AUTHORITY=$(call auth_out,Authority) \
+	  VITE_COGNITO_CLIENT_ID=$(call auth_out,ClientId) \
+	  VITE_COGNITO_DOMAIN=$(call auth_out,Domain) \
+	  npm run build
 	aws s3 sync frontend/dist s3://$(FRONTEND_BUCKET) --delete
 	aws cloudfront create-invalidation --distribution-id $(CF_DIST_ID) --paths "/*"
+
+deploy-auth:
+	@aws cloudformation deploy --region us-east-1 --stack-name $(AUTH_STACK) \
+	  --template-file infra/auth.yml --tags PROJECT_NAME=spry \
+	  --parameter-overrides GoogleClientId=$(GOOGLE_CLIENT_ID) GoogleClientSecret=$(GOOGLE_CLIENT_SECRET)

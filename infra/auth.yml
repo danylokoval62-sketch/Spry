@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Spry sign-in - Cognito user pool with managed login (email + password, Google)
+
+Parameters:
+  ProjectName:
+    Type: String
+    Default: spry
+  DomainPrefix:
+    Type: String
+    Default: spry-koval
+  SiteUrl:
+    Type: String
+    Default: https://app.spry-koval.me/
+  LocalUrl:
+    Type: String
+    Default: http://localhost:5173/
+  GoogleClientId:
+    Type: String
+  GoogleClientSecret:
+    Type: String
+    NoEcho: true
+
+Resources:
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub ${ProjectName}-users
+      UsernameAttributes: [email]
+      AutoVerifiedAttributes: [email]
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireUppercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+      UserPoolTier: ESSENTIALS
+      UserPoolTags:
+        PROJECT_NAME: !Ref ProjectName
+
+  GoogleProvider:
+    Type: AWS::Cognito::UserPoolIdentityProvider
+    Properties:
+      UserPoolId: !Ref UserPool
+      ProviderName: Google
+      ProviderType: Google
+      ProviderDetails:
+        client_id: !Ref GoogleClientId
+        client_secret: !Ref GoogleClientSecret
+        authorize_scopes: openid email profile
+      AttributeMapping:
+        email: email
+        email_verified: email_verified
+
+  WebClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn: GoogleProvider
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientName: !Sub ${ProjectName}-web
+      GenerateSecret: false
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows: [code]
+      AllowedOAuthScopes: [openid, email, profile]
+      SupportedIdentityProviders: [COGNITO, Google]
+      CallbackURLs: [!Ref SiteUrl, !Ref LocalUrl]
+      LogoutURLs: [!Ref SiteUrl, !Ref LocalUrl]
+
+  Domain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      UserPoolId: !Ref UserPool
+      Domain: !Ref DomainPrefix
+      ManagedLoginVersion: 2
+
+  Branding:
+    Type: AWS::Cognito::ManagedLoginBranding
+    DependsOn: Domain
+    Properties:
+      UserPoolId: !Ref UserPool
+      ClientId: !Ref WebClient
+      UseCognitoProvidedValues: true
+
+Outputs:
+  Authority:
+    Value: !Sub https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}
+  ClientId:
+    Value: !Ref WebClient
+  Domain:
+    Value: !Sub ${DomainPrefix}.auth.${AWS::Region}.amazoncognito.com

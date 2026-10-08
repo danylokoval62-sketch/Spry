@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
 import { CalendarPlus, Sparkles } from "lucide-react";
+import { useAuth } from "react-oidc-context";
 import { createMeeting, getMeetings } from "./api";
+import { Button } from "./components/ui/button";
 import { MeetingForm } from "./components/MeetingForm";
 import { MeetingList } from "./components/MeetingList";
 import type { Meeting, MeetingInput } from "./types";
 
+function signOutUrl() {
+  const params = new URLSearchParams({
+    client_id: import.meta.env.VITE_COGNITO_CLIENT_ID,
+    logout_uri: `${window.location.origin}/`,
+  });
+  return `https://${import.meta.env.VITE_COGNITO_DOMAIN}/logout?${params}`;
+}
+
 export default function App() {
+  const auth = useAuth();
   const [meetings, setMeetings] = useState<Meeting[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -17,6 +28,18 @@ export default function App() {
       .catch(() => setError("The meeting list could not be loaded."))
       .finally(() => setIsLoading(false));
   }, []);
+
+  // /login/ starts the sign-in in the app, so the library keeps the state and PKCE verifier.
+  useEffect(() => {
+    if (!window.location.pathname.startsWith("/login")) return;
+    if (auth.isAuthenticated) window.history.replaceState({}, "", "/");
+    else if (!auth.isLoading && !auth.activeNavigator && !auth.error) void auth.signinRedirect();
+  }, [auth]);
+
+  async function signOut() {
+    await auth.removeUser();
+    window.location.href = signOutUrl();
+  }
 
   async function handleCreateMeeting(meeting: MeetingInput) {
     setIsSubmitting(true);
@@ -44,7 +67,16 @@ export default function App() {
             </span>
             <span className="font-display text-2xl">spry</span>
           </div>
-          <span className="text-sm text-moss">Meeting rhythm, made simple</span>
+          {auth.isAuthenticated ? (
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-moss">{auth.user?.profile.email}</span>
+              <Button onClick={() => void signOut()}>Sign out</Button>
+            </div>
+          ) : (
+            <Button onClick={() => void auth.signinRedirect()} disabled={auth.isLoading}>
+              Sign in
+            </Button>
+          )}
         </header>
         <section className="grid gap-12 py-14 lg:grid-cols-[1.2fr_0.8fr] lg:items-start">
           <div>
@@ -78,6 +110,11 @@ export default function App() {
               {meetings.length} {meetings.length === 1 ? "meeting" : "meetings"}
             </span>
           </div>
+          {auth.error && (
+            <p className="mb-4 rounded-xl bg-[#f5d8d0] px-4 py-3 text-sm text-[#8b3d2b]">
+              Sign-in failed: {auth.error.message}
+            </p>
+          )}
           {error && (
             <p className="mb-4 rounded-xl bg-[#f5d8d0] px-4 py-3 text-sm text-[#8b3d2b]">{error}</p>
           )}

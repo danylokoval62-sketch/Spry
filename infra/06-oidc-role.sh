@@ -33,6 +33,7 @@ cat > /tmp/perm.json <<EOF
     {"Effect": "Allow", "Action": "iam:PassRole", "Resource": "arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole"},
     {"Effect": "Allow", "Action": "s3:ListBucket", "Resource": "arn:aws:s3:::$FRONTEND_BUCKET"},
     {"Effect": "Allow", "Action": ["s3:PutObject","s3:DeleteObject"], "Resource": "arn:aws:s3:::$FRONTEND_BUCKET/*"},
+    {"Effect": "Allow", "Action": "cloudformation:DescribeStacks", "Resource": "arn:aws:cloudformation:us-east-1:$ACCOUNT_ID:stack/spry-auth/*"},
     {"Effect": "Allow", "Action": "cloudfront:CreateInvalidation", "Resource": "arn:aws:cloudfront::$ACCOUNT_ID:distribution/E21I2RKF628XEZ"}
   ]
 }
