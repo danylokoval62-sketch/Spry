@@ -27,6 +27,10 @@ Backend, frontend, конфігурація бази та CI живуть в о�
 - `make lint`: ruff для backend, ESLint і Prettier для frontend
 - `make deploy-backend`: збірка образу, push в ECR з тегом = SHA коміту, оновлення ECS-сервісу
 - `make deploy-frontend`: збірка, синхронізація з S3, інвалідація кешу CloudFront
+- `make infra-plan`: `terraform plan` для `infra/` (лише перегляд; `apply` виконує тільки HCP Terraform після merge)
+- `make deploy-reports`, `make deploy-ai`: новий образ у Lambda (`update-function-code`); Terraform ігнорує `image_uri`
+
+Інфраструктура (Cognito, звіти, парсер) описана в `infra/*.tf` і застосовується в HCP Terraform, див. `docs/adr/0007-terraform.md`.
 
 Образи тегуються SHA коміту, а не `latest`, тож завжди відомо, який коміт зараз працює, а відкат означає розгортання попереднього тега.
 
