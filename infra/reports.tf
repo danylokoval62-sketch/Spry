@@ -12,6 +12,7 @@ data "aws_route_tables" "vpc" {
 
 resource "aws_s3_bucket" "reports" {
   bucket = local.reports_bucket
+  tags   = { Purpose = "weekly-reports" }
 }
 
 resource "aws_s3_bucket_public_access_block" "reports" {
