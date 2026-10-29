@@ -2,6 +2,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from app.ai.agenda import ActionItem, AgendaItem
+
 
 class MeetingBase(BaseModel):
     title: str = Field(min_length=1, max_length=255)
@@ -34,3 +36,11 @@ class MeetingRead(MeetingBase):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
+    agenda: dict | None = None
+    ai_suggestion: dict | None = None
+
+
+class AgendaSave(BaseModel):
+    items: list[AgendaItem] = Field(min_length=1, max_length=50)
+    action_items: list[ActionItem] = Field(default=[], max_length=50)
+    ai_suggestion: dict | None = None

@@ -1,5 +1,7 @@
-import { CalendarDays, Clock3, Users } from "lucide-react";
+import { useState } from "react";
+import { CalendarDays, Clock3, ListChecks, Users } from "lucide-react";
 import type { Meeting } from "../types";
+import { AgendaEditor } from "./AgendaEditor";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat(undefined, {
@@ -16,7 +18,15 @@ function formatTime(value: string) {
   }).format(new Date(value));
 }
 
-export function MeetingList({ meetings }: { meetings: Meeting[] }) {
+export function MeetingList({
+  meetings,
+  onSaved,
+}: {
+  meetings: Meeting[];
+  onSaved: (meeting: Meeting) => void;
+}) {
+  const [open, setOpen] = useState<number | null>(null);
+
   if (meetings.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-line p-10 text-center text-moss">
@@ -28,30 +38,38 @@ export function MeetingList({ meetings }: { meetings: Meeting[] }) {
   return (
     <div className="space-y-3">
       {meetings.map((meeting) => (
-        <article
-          key={meeting.id}
-          className="grid gap-4 rounded-2xl border border-line bg-white/65 p-5 sm:grid-cols-[1fr_auto] sm:items-center"
-        >
-          <div>
-            <h3 className="font-display text-2xl text-ink">{meeting.title}</h3>
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-moss">
-              <span className="inline-flex items-center gap-2">
-                <CalendarDays size={16} />
-                {formatDate(meeting.starts_at)}
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Clock3 size={16} />
-                {formatTime(meeting.starts_at)} - {formatTime(meeting.ends_at)}
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <Users size={16} />
-                {meeting.attendee_count} attendees
-              </span>
+        <article key={meeting.id} className="rounded-2xl border border-line bg-white/65 p-5">
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center">
+            <div>
+              <h3 className="font-display text-2xl text-ink">{meeting.title}</h3>
+              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-moss">
+                <span className="inline-flex items-center gap-2">
+                  <CalendarDays size={16} />
+                  {formatDate(meeting.starts_at)}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Clock3 size={16} />
+                  {formatTime(meeting.starts_at)} - {formatTime(meeting.ends_at)}
+                </span>
+                <span className="inline-flex items-center gap-2">
+                  <Users size={16} />
+                  {meeting.attendee_count} attendees
+                </span>
+              </div>
             </div>
+            <span className="justify-self-start rounded-full bg-[#e6eadf] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-moss sm:justify-self-end">
+              Confirmed
+            </span>
           </div>
-          <span className="justify-self-start rounded-full bg-[#e6eadf] px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-moss sm:justify-self-end">
-            Confirmed
-          </span>
+          <button
+            type="button"
+            className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-moss"
+            onClick={() => setOpen(open === meeting.id ? null : meeting.id)}
+          >
+            <ListChecks size={16} />
+            {meeting.agenda ? `Agenda (${meeting.agenda.items.length})` : "Add agenda"}
+          </button>
+          {open === meeting.id && <AgendaEditor meeting={meeting} onSaved={onSaved} />}
         </article>
       ))}
     </div>

@@ -8,8 +8,10 @@ CF_DIST_ID      ?= E21I2RKF628XEZ
 API_URL         ?= https://api.spry-koval.me
 AUTH_STACK      ?= spry-auth
 REPORTS_STACK   ?= spry-reports
+AI_STACK        ?= spry-ai
 
 -include .env
+ai_out = $(shell aws cloudformation describe-stacks --region $(AWS_REGION) --stack-name $(AI_STACK) --query "Stacks[0].Outputs[?OutputKey=='$(1)'].OutputValue" --output text)
 reports_out = $(shell aws cloudformation describe-stacks --region $(AWS_REGION) --stack-name $(REPORTS_STACK) --query "Stacks[0].Outputs[?OutputKey=='$(1)'].OutputValue" --output text)
 auth_out = $(shell aws cloudformation describe-stacks --region us-east-1 --stack-name $(AUTH_STACK) --query "Stacks[0].Outputs[?OutputKey=='$(1)'].OutputValue" --output text)
 
@@ -30,6 +32,7 @@ deploy-frontend:
 	  VITE_COGNITO_AUTHORITY=$(call auth_out,Authority) \
 	  VITE_COGNITO_CLIENT_ID=$(call auth_out,ClientId) \
 	  VITE_COGNITO_DOMAIN=$(call auth_out,Domain) \
+	  VITE_PARSER_URL=$(call ai_out,ParserUrl) \
 	  npm run build
 	aws s3 sync frontend/dist s3://$(FRONTEND_BUCKET) --delete
 	aws cloudfront create-invalidation --distribution-id $(CF_DIST_ID) --paths "/*"
@@ -54,3 +57,21 @@ deploy-reports: push-image
 # make report-now WEEK=2026-W39 (no WEEK = previous week)
 report-now:
 	aws sqs send-message --region $(AWS_REGION) --queue-url $(call reports_out,QueueUrl) --message-body '{"week": "$(WEEK)"}'
+
+# Agenda parser (infra/ai.yml). BUDGET_EMAIL in .env creates the $5 monthly budget alarm.
+PARSER_MODEL ?= us.anthropic.claude-haiku-4-5-20251001-v1:0
+export PARSER_MODEL
+deploy-ai: push-image
+	@aws cloudformation deploy --region $(AWS_REGION) --stack-name $(AI_STACK) \
+	  --template-file infra/ai.yml --tags PROJECT_NAME=spry --capabilities CAPABILITY_IAM \
+	  --parameter-overrides ImageUri=$(IMAGE) ParserModel=$(PARSER_MODEL) \
+	    CognitoAuthority=$(call auth_out,Authority) CognitoClientId=$(call auth_out,ClientId) \
+	    BudgetEmail="$(BUDGET_EMAIL)"
+
+# Needs the backend deps (pip install -r backend/requirements.txt) and AWS credentials.
+llm-hello:
+	cd backend && python -m app.ai.hello
+
+# make parse TEXT="Пн 10:00, синк по прайсингу, 45 хв. 1) ..."
+parse:
+	cd backend && python -m app.ai.agenda

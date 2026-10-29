@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import DateTime, Integer, String
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.database import Base
@@ -14,3 +15,6 @@ class Meeting(Base):
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     attendee_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    agenda: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
+    # what the model suggested, plus model and prompt version; compare with agenda
+    ai_suggestion: Mapped[dict | None] = mapped_column(JSONB, nullable=True)

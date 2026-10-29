@@ -121,7 +121,12 @@ export default function App() {
           {isLoading ? (
             <p className="text-moss">Loading meetings...</p>
           ) : (
-            <MeetingList meetings={meetings} />
+            <MeetingList
+              meetings={meetings}
+              onSaved={(saved) =>
+                setMeetings((current) => current.map((m) => (m.id === saved.id ? saved : m)))
+              }
+            />
           )}
         </section>
       </div>
