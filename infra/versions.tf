@@ -1,7 +1,12 @@
 terraform {
   required_version = ">= 1.10"
 
-  # cloud { organization = "REPLACE-ME", workspaces { name = "spry-dev" } }  # enabled after terraform login
+  cloud {
+    organization = "ooad-danylokoval62-sketch"
+    workspaces {
+      name = "spry-dev"
+    }
+  }
 
   required_providers {
     aws = {
