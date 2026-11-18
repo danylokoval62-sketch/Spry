@@ -51,3 +51,16 @@ Trust policy ролі обмежена **одним репозиторієм і 
 repo:danylokoval62-sketch@<owner-id>/Spry@<repo-id>:ref:refs/heads/main
 
 Тому trust policy порівнює саме цей рядок. Значення `sub` було з'ясовано, виведши claims токена в запуску workflow.
+## Google Cloud (Lab 9)
+
+Фронтенд, API і база працюють також на Google Cloud; вхід (Cognito), тижневий звіт, SES і парсер порядку денного залишаються в AWS. Вибір сервісів: `docs/adr/0008-google-cloud.md`, вартість: `docs/lab9-costs.md`.
+
+Інфраструктура: `gcp/*.tf` (окремий workspace `spry-gcp`). Cloud Run, Cloud SQL (PostgreSQL, db-f1-micro), Artifact Registry, Secret Manager, два service account, Workload Identity Federation для HCP Terraform. Ключів немає.
+
+Розгортання (потрібні `gcloud auth login`, `gcloud auth application-default login`, Firebase CLI):
+
+1. `cd gcp && terraform apply -var project_id=<id> -var hcp_organization_id=org-… -var hcp_workspace_id=ws-…` (перший раз з ноутбука: створює pool WIF).
+2. `make deploy-gcp-backend`: образ в Artifact Registry, `gcloud run deploy`. Міграції (`alembic upgrade head`) виконуються при старті контейнера.
+3. `make deploy-gcp-frontend`: збірка з порожнім `VITE_API_URL` і `firebase deploy`; Firebase пересилає `/api/**` у Cloud Run (один origin, без CORS).
+
+**База не засинає сама.** Зупинити: `make gcp-db-stop` (диск 10 GB все одно коштує ~$1.70/міс), запустити: `make gcp-db-start`. Повністю прибрати: `cd gcp && terraform destroy`.

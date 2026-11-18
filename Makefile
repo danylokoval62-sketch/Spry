@@ -55,3 +55,28 @@ llm-hello:
 # make parse TEXT="Пн 10:00, синк по прайсингу, 45 хв. 1) ..."
 parse:
 	cd backend && python -m app.ai.agenda
+
+# ---- Google Cloud (Lab 9): gcp/*.tf, workspace spry-gcp ----
+GCP_PROJECT ?= $(shell gcloud config get-value project 2>/dev/null)
+GCP_REGION  ?= us-central1
+GCP_IMAGE   ?= $(GCP_REGION)-docker.pkg.dev/$(GCP_PROJECT)/spry/backend:$(TAG)
+
+gcp-plan:
+	cd gcp && terraform fmt -check && terraform init -input=false && terraform validate && terraform plan
+
+# Terraform ignores the image: the app pipeline owns "which commit runs"
+deploy-gcp-backend:
+	gcloud auth configure-docker $(GCP_REGION)-docker.pkg.dev --quiet
+	docker build --platform linux/amd64 --provenance=false -t $(GCP_IMAGE) backend
+	docker push $(GCP_IMAGE)
+	gcloud run deploy spry-api --image $(GCP_IMAGE) --region $(GCP_REGION)
+
+# Same origin: Firebase rewrites /api/** to Cloud Run, so VITE_API_URL is empty (no CORS)
+deploy-gcp-frontend:
+	cd frontend && npm ci && VITE_API_URL= npm run build && npx firebase-tools deploy --only hosting --project $(GCP_PROJECT)
+
+gcp-db-stop:
+	gcloud sql instances patch spry-pg --activation-policy=NEVER --quiet
+
+gcp-db-start:
+	gcloud sql instances patch spry-pg --activation-policy=ALWAYS --quiet

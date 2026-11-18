@@ -1,5 +1,6 @@
-# Only infra/ goes to HCP Terraform (the workspace working directory is infra)
 /*
 !/infra
+!/gcp
 /infra/.terraform
 /infra/infra
+/gcp/.terraform
