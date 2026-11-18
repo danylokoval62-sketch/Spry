@@ -34,3 +34,11 @@ Lab 4 AWS figures were not in this repo, so the AWS column is recomputed from th
   10 GB disk bills even when stopped ($1.70). The mirror of the
   Aurora trap (a health check keeping it awake): here the trap is *forgetting* it. Firestore's trap is the other kind:
   a list page reading 500 documents per visit exhausts 50,000 free reads a day after 100 visits.
+
+## Part 4 evidence (project spry-danylokoval-2026)
+
+- **BigQuery:** `docs/lab9/bigquery.jpg`, top Texas names from `bigquery-public-data.usa_names.usa_1910_2013`; 105.24 MB processed, well inside the 1 TiB monthly free tier.
+- **Looker Studio:** `docs/lab9/looker-studio.jpg`, line chart over `spry_lab9.names_by_year` (a table saved from the BigQuery query). Report: https://lookerstudio.google.com/reporting/27a6fa88-ef10-4c4d-9884-9e1f49582bfa
+- **Vision API OCR:** `docs/lab9/vision-ocr.jpg` and `vision-ocr.txt`, TEXT_DETECTION on a screenshot of the deployed Spry frontend (1 call, free tier is 1,000 units).
+- **Spry on GCP:** `docs/lab9/spry-on-gcp.jpg`, https://spry-danylokoval-2026.web.app listing a meeting read from Cloud SQL through Firebase's `/api/**` rewrite to Cloud Run.
+- Budget alert: $5 a month, 50/90/100% (spry-lab9-5usd). Cloud SQL was stopped after the screenshots.
