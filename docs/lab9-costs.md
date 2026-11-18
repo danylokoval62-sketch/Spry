@@ -3,7 +3,7 @@
 Assumptions: Lambda/Cloud Run and CloudFront/Firebase stay within free tiers at this traffic (2M requests,
 10 GB hosting); Aurora at 0.5 ACU minimum while awake, $0.12 per ACU-hour; ~1 GB database (AWS $0.10/GB),
 10 GB SSD on Cloud SQL ($0.17/GB, billed while stopped); Cloud SQL db-f1-micro $0.0105/h; 730 h/month.
-Lab 4 AWS figures were not in this repo, so the AWS column is recomputed from the prices above: check it against Lab 4.
+The idle-month AWS total (~$0.30) matches the Lab 9 reference table; the other AWS figures are recomputed from the prices above.
 
 ## Idle month (reference)
 
@@ -38,7 +38,7 @@ Lab 4 AWS figures were not in this repo, so the AWS column is recomputed from th
 ## Part 4 evidence (project spry-danylokoval-2026)
 
 - **BigQuery:** `docs/lab9/bigquery.jpg`, top Texas names from `bigquery-public-data.usa_names.usa_1910_2013`; 105.24 MB processed, well inside the 1 TiB monthly free tier.
-- **Looker Studio:** `docs/lab9/looker-studio.jpg`, line chart over `spry_lab9.names_by_year` (a table saved from the BigQuery query). Report: https://lookerstudio.google.com/reporting/27a6fa88-ef10-4c4d-9884-9e1f49582bfa
+- **Looker Studio:** `docs/lab9/looker-studio.jpg`, line chart over `spry_lab9.names_by_year` (a table saved from the BigQuery query).
 - **Vision API OCR:** `docs/lab9/vision-ocr.jpg` and `vision-ocr.txt`, TEXT_DETECTION on a screenshot of the deployed Spry frontend (1 call, free tier is 1,000 units).
 - **Spry on GCP:** `docs/lab9/spry-on-gcp.jpg`, https://spry-danylokoval-2026.web.app listing a meeting read from Cloud SQL through Firebase's `/api/**` rewrite to Cloud Run.
 - Budget alert: $5 a month, 50/90/100% (spry-lab9-5usd). Cloud SQL was stopped after the screenshots.
